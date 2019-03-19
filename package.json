@@ -1,0 +1,20 @@
+{
+  "name": "selfkey-main-contracts",
+  "version": "0.0.1",
+  "description": "{{description}}",
+  "author": "",
+  "scripts": {
+    "test": "truffle test",
+    "test:cov": "solidity-coverage",
+    "lint:sol": "solhint contracts/**/*.sol"
+  },
+  "devDependencies": {
+    "solhint": "^1.5.1",
+    "solidity-coverage": "^0.5.11",
+    "truffle-hdwallet-provider": "^1.0.0-web3one.5",
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "^2.1.2",
+    "truffle": "^5.0.2"
+  }
+}
