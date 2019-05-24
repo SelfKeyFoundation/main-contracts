@@ -1,87 +1,129 @@
-pragma solidity ^0.5.4;
+pragma solidity 0.5.4;
 
-import './erc725/IdentityProxy.sol';
-import './DIDLedger.sol';
-import "zos-lib/contracts/Initializable.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/access/roles/WhitelistAdminRole.sol";
+import "./ledger/DIDLedger.sol";
+import "openzeppelin-solidity/contracts/access/roles/WhitelistedRole.sol";
 
 /**
  * @title SelfKeyMain
  * @dev Main entrypoint implementing SelfKey platform functionality
  */
-contract SefKeyMain is SelfKeyContract, Initializable, WhitelistAdminRole {
-    // NOTE: What happens if one of the admin accounts is compromised? (no one can remove from whitelist)
+contract SelfKeyMain is WhitelistedRole {
+    //bytes32 constant TYPE_ERC725 = keccak256(abi.encodePacked("ERC725"));
+    bytes32 constant LEDGER_KEY = keccak256(abi.encodePacked("DIDLedger"));
 
-    uint128 public constant TYPE_ACCOUNT = 0;
-    uint128 public constant TYPE_ERC725 = 1;
-    // Add other types
+    // directory
+    mapping(bytes32 => address) public addresses;
+    //DIDLedger public ledger;
 
-    mapping(address => address) public affiliateLinks;
-    mapping(address => bool) public affiliateStatus;
-    mapping(address => bool) public vendorStatus;
+    mapping(bytes32 => bytes32) public affiliateLinks;
+    mapping(bytes32 => bool) public affiliateStatus;
+    mapping(bytes32 => bool) public vendorStatus;
 
-    event IdentityRegistered(address sender, address idContract);
+    event RegisteredAffiliate(bytes32 id);
+    event RegisteredVendor(bytes32 id);
+    event RemovedAffiliate(bytes32 id);
+    event RemovedVendor(bytes32 id);
+    event RegisteredSelfKeyDID(bytes32 id);
+    event AddedAffiliateLink(bytes32 user, bytes32 affiliate);
+    event RemovedAffiliateLink(bytes32 user, bytes32 affiliate);
+    event CreatedSelfKeyDID(bytes32 id, bytes32 affiliate);
+    event SetAddress(bytes32 key, address _address);
 
-    function initialize(address _directory)
-        public
-    {
-        setDirectory(_directory);
-    }
-
-    function registerAffiliate()
-        public
-        onlyWhitelistAdmin
-    {
-        affiliateStatus[msg.sender] = true;     //change to payout address instead of boolean
-    }
-
-    function registerVendor()
+    function setAddress(bytes32 key, address _address)
         public
         onlyWhitelistAdmin
     {
-        vendorStatus[msg.sender] = true;
+        addresses[key] = _address;
+        emit SetAddress(key, _address);
     }
 
-    function removeAffiliate()
+    function getAddress(bytes32 key)
         public
-        onlyWhitelistAdmin
-    {
-        affiliateStatus[msg.sender] = false;
-    }
-
-    function removeVendor()
-        public
-        onlyWhitelistAdmin
-    {
-        vendorStatus[msg.sender] = false;
-    }
-
-    function registerIdentity(uint256 contractType, address affiliate)
-        public
+        view
         returns (address)
     {
-        IdentityLedger ledger = IdentityLedger(directory.getAddress("IdentityLedger"));
-        address newIdentity = msg.sender;
+        return addresses[key];
+    }
 
-        // deploy ERC725 instance if needed
-        // NOTE: What happens if same address deploys multiple erc725 instances???????
-        if(contractType == 1) {
-            IdentityProxy erc725 = new IdentityProxy(msg.sender);
-            newIdentity = address(erc725);
+    function registerAffiliate(bytes32 affiliateID)
+        public
+        onlyWhitelisted
+    {
+        DIDLedger ledger = DIDLedger(getAddress(LEDGER_KEY));
+        require(ledger.getController(affiliateID) != address(0), "DID is not registered on the ledger");
+
+        affiliateStatus[affiliateID] = true;
+        emit RegisteredAffiliate(affiliateID);
+    }
+
+    function registerVendor(bytes32 vendorID)
+        public
+        onlyWhitelisted
+    {
+        DIDLedger ledger = DIDLedger(getAddress(LEDGER_KEY));
+        require(ledger.getController(vendorID) != address(0), "DID is not registered on the ledger");
+
+        vendorStatus[vendorID] = true;
+        emit RegisteredVendor(vendorID);
+    }
+
+    function addAffiliateLink(bytes32 user, bytes32 affiliate)
+        public
+        onlyWhitelisted
+    {
+        require(affiliateStatus[affiliate], "DID provided is not listed as affiliate");
+        affiliateLinks[user] = affiliate;
+        emit AddedAffiliateLink(user, affiliate);
+    }
+
+    function removeAffiliate(bytes32 affiliateID)
+        public
+        onlyWhitelisted
+    {
+        affiliateStatus[affiliateID] = false;
+        emit RemovedAffiliate(affiliateID);
+    }
+
+    function removeVendor(bytes32 vendorID)
+        public
+        onlyWhitelisted
+    {
+        vendorStatus[vendorID] = false;
+        emit RemovedVendor(vendorID);
+    }
+
+    function removeAffiliateLink(bytes32 user)
+        public
+        onlyWhitelisted
+    {
+        bytes32 affiliate = affiliateLinks[user];
+        affiliateLinks[user] = bytes32(0);
+        emit RemovedAffiliateLink(user, affiliate);
+    }
+
+    function createDID(bytes32 affiliateID)
+        public
+        returns (bytes32)
+    {
+        DIDLedger ledger = DIDLedger(getAddress(LEDGER_KEY));
+        bytes32 newDID = ledger.createDID(bytes32(0));
+
+        if (affiliateStatus[affiliateID] && ledger.getController(affiliateID) != address(0)) {
+            affiliateLinks[newDID] = affiliateID;
         }
 
-        ledger.create(newIdentity, bytes32(0)); // initialize with data?????
+        // transfer DID ownership to user
+        ledger.setController(newDID, msg.sender);
+        emit CreatedSelfKeyDID(newDID, affiliateID);
+        return newDID;
+    }
 
-        if(affiliate != address(0)) {
-            if(affiliateStatus[affiliate]){
-                affiliateLinks[newId] = affiliate;
-            } else {
-                revert("Affiliate address provided is not an affiliate");
-            }
-        }
-
-        emit IdentityCreated(msg.sender, newIdentity);
-        return newIdentity;
+    function resolveDID(bytes32 did)
+        public
+        view
+        returns (address)
+    {
+        DIDLedger ledger = DIDLedger(getAddress(LEDGER_KEY));
+        return ledger.getController(did);
     }
 }

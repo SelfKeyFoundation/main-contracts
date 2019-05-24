@@ -1,8 +1,18 @@
-// const HDWalletProvider = require('truffle-hdwallet-provider');
-// const infuraKey = "fj4jll3k.....";
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".local/wallet").toString().trim();
+const HDWalletProvider = require('truffle-hdwallet-provider')
+const fs = require('fs');
+
+const infuraKey = "a0fb364d78a54a6d84a6edf550b9a411"
+const mainnetURL = "https://mainnet.infura.io/v3/" + infuraKey
+const ropstenURL = "https://ropsten.infura.io/v3/" + infuraKey
+//const providerUrlRopsten = "https://ropsten.infura.io/SYGRk61NUc3yN4NNRs60"
+
+const walletPath = "./local/wallet.json"
+const { mnemonic } = JSON.parse(fs.readFileSync(walletPath))
+
+const MainnetProvider = new HDWalletProvider(mnemonic, mainnetURL)
+const RopstenProvider = new HDWalletProvider(mnemonic, ropstenURL)
+
+//console.log("addresses = " + RopstenProvider.addresses)
 
 module.exports = {
   networks: {
@@ -16,6 +26,7 @@ module.exports = {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
+      //gas: 7500000
     },
     coverage: {
       host: '127.0.0.1',
@@ -35,14 +46,15 @@ module.exports = {
 
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
-    // ropsten: {
-      // provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/${infuraKey}`),
-      // network_id: 3,       // Ropsten's id
-      // gas: 5500000,        // Ropsten has a lower block limit than mainnet
+    ropsten: {
+      provider: () => RopstenProvider,
+      network_id: 3,
+      gas: 5500000,
+      gasPrice: 3000000000, // 3 gwei
       // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
       // timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      // skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
 
     // Useful for private networks
     // private: {
@@ -60,7 +72,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "^0.5.4"    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.5.4"    // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {

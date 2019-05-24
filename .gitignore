@@ -53,3 +53,5 @@ zos.dev*
 # solidity-coverage
 coverageEnv/
 scTopics
+
+.zos.session
