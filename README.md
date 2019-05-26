@@ -64,7 +64,7 @@ possible affiliate relationships stored on the `SelfKeyMain` instance, and perfo
 according to percentages specified by the caller. _Service providers have to check if the payment and
 affiliate splitting were done correctly_.
 
-####Payment pre-conditions:
+#### Payment pre-conditions
 
 * Sender must `approve` the payments contract to spend the required amount of tokens.
 * Sender, recipient and potential affiliates must have a valid DID registered on the DID Ledger.
