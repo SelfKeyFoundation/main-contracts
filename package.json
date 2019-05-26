@@ -16,6 +16,6 @@
   "dependencies": {
     "ethereumjs-util": "^6.1.0",
     "openzeppelin-solidity": "^2.2.0",
-    "truffle": "^5.0.19"
+    "selfkey-did-ledger": "^1.0.0"
   }
 }
