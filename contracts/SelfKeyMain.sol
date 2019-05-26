@@ -1,6 +1,6 @@
 pragma solidity 0.5.4;
 
-import "./ledger/DIDLedger.sol";
+import "selfkey-did-ledger/contracts/DIDLedger.sol";
 import "openzeppelin-solidity/contracts/access/roles/WhitelistedRole.sol";
 
 /**
