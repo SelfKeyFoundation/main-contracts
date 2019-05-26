@@ -12,9 +12,7 @@ contract PaymentSplitter {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
-    //bytes32 constant LEDGER_KEY = keccak256(abi.encodePacked("DIDLedger"));
     SelfKeyMain public main;
-    IERC20 public token;  // SelfkeyToken contract
 
     event AffiliateCommissionPaid(
         address recipient,
@@ -28,15 +26,15 @@ contract PaymentSplitter {
         bytes32 purchaseInfo
     );
 
-    constructor(address _main, address _token) public {
+    constructor(address _main) public {
         main = SelfKeyMain(_main);
-        token = IERC20(_token);
     }
 
     /**
      *  Make a payment to a recipient address with escrow and two level affiliate splitting
      */
     function makePayment(
+        address _token,
         bytes32 senderDID,
         bytes32 recipientDID,
         uint256 amount,
@@ -47,6 +45,7 @@ contract PaymentSplitter {
         public
         returns (uint256)
     {
+        IERC20 token = IERC20(_token);  // SelfkeyToken contract
         require(main.vendorStatus(recipientDID), "Recipient DID is not registered as vendor");
 
         address recipientAddress = main.resolveDID(recipientDID);

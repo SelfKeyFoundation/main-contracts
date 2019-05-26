@@ -38,7 +38,7 @@ contract("PaymentSplitter", accounts => {
 
     ledger = await DIDLedger.new()
     main = await SelfKeyMain.new()
-    payments = await PaymentSplitter.new(main.address, token.address)
+    payments = await PaymentSplitter.new(main.address)
 
     await main.setAddress(ledgerKey, ledger.address, { from: admin1 })
     await main.addWhitelisted(whitelisted1, { from: admin1 })
@@ -97,6 +97,7 @@ contract("PaymentSplitter", accounts => {
     it("cannot send from a DID not under control", async () => {
       await assertThrows(
         payments.makePayment(
+          token.address,
           user2DID,     // bytes32 senderDID
           vendorDID,    // bytes32 recipientDID
           10000,        // uint256 amount
@@ -111,6 +112,7 @@ contract("PaymentSplitter", accounts => {
     it("cannot make payment to an invalid vendor DID", async () => {
       await assertThrows(
         payments.makePayment(
+          token.address,
           user1DID,     // bytes32 senderDID
           user2DID,    // bytes32 recipientDID (not a registered vendor)
           10000,        // uint256 amount
@@ -125,6 +127,7 @@ contract("PaymentSplitter", accounts => {
     it("cannot make payment to an invalid vendor DID", async () => {
       await assertThrows(
         payments.makePayment(
+          token.address,
           user1DID,     // bytes32 senderDID
           user2DID,    // bytes32 recipientDID (not a registered vendor)
           10000,        // uint256 amount
@@ -141,6 +144,7 @@ contract("PaymentSplitter", accounts => {
       assert.equal(await ledger.getController(vendor2DID), 0)
       await assertThrows(
         payments.makePayment(
+          token.address,
           user1DID,     // bytes32 senderDID
           vendor2DID,    // bytes32 recipientDID (not a registered vendor)
           10000,        // uint256 amount
@@ -155,6 +159,7 @@ contract("PaymentSplitter", accounts => {
     it("user without affiliates makes a payment", async () => {
       // make two different payments
       await payments.makePayment(
+        token.address,
         user1DID,     // bytes32 senderDID
         vendorDID,    // bytes32 recipientDID
         10000,        // uint256 amount
@@ -173,6 +178,7 @@ contract("PaymentSplitter", accounts => {
       await token.approve(payments.address, 1000, { from: user3 })
 
       await payments.makePayment(
+        token.address,
         user3DID,     // bytes32 senderDID
         vendorDID,    // bytes32 recipientDID
         1000,         // uint256 amount
@@ -193,6 +199,7 @@ contract("PaymentSplitter", accounts => {
       await token.approve(payments.address, 10000, { from: user2 })
 
       await payments.makePayment(
+        token.address,
         user2DID,     // bytes32 senderDID
         vendorDID,    // bytes32 recipientDID
         10000,        // uint256 amount
