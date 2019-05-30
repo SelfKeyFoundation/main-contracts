@@ -60,7 +60,7 @@ contract PaymentSplitter {
         uint256 affiliate2Amount = (amount.mul(affiliate2Split)).div(100);
         uint256 vendorAmount = amount;
 
-        bytes32 affiliate1 = main.affiliateLinks(senderDID);
+        bytes32 affiliate1 = main.affiliateConnections(senderDID);
         address affiliate1Address = resolveAffiliate(affiliate1);
 
         if (affiliate1Address != address(0)) {
@@ -68,7 +68,7 @@ contract PaymentSplitter {
             token.safeTransfer(affiliate1Address, affiliate1Amount);
             emit AffiliateCommissionPaid(affiliate1Address, affiliate1, affiliate1Amount);
 
-            bytes32 affiliate2 = main.affiliateLinks(affiliate1);
+            bytes32 affiliate2 = main.affiliateConnections(affiliate1);
             address affiliate2Address = resolveAffiliate(affiliate2);
 
             if (affiliate2Address != address(0)) {

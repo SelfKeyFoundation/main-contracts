@@ -15,7 +15,7 @@ contract SelfKeyMain is WhitelistedRole {
     mapping(bytes32 => address) public addresses;
     //DIDLedger public ledger;
 
-    mapping(bytes32 => bytes32) public affiliateLinks;
+    mapping(bytes32 => bytes32) public affiliateConnections;
     mapping(bytes32 => bool) public affiliateStatus;
     mapping(bytes32 => bool) public vendorStatus;
 
@@ -24,8 +24,8 @@ contract SelfKeyMain is WhitelistedRole {
     event RemovedAffiliate(bytes32 id);
     event RemovedVendor(bytes32 id);
     event RegisteredSelfKeyDID(bytes32 id);
-    event AddedAffiliateLink(bytes32 user, bytes32 affiliate);
-    event RemovedAffiliateLink(bytes32 user, bytes32 affiliate);
+    event AddedAffiliateConnection(bytes32 user, bytes32 affiliate);
+    event RemovedAffiliateConnection(bytes32 user, bytes32 affiliate);
     event CreatedSelfKeyDID(bytes32 id, bytes32 affiliate);
     event SetAddress(bytes32 key, address _address);
 
@@ -67,13 +67,13 @@ contract SelfKeyMain is WhitelistedRole {
         emit RegisteredVendor(vendorID);
     }
 
-    function addAffiliateLink(bytes32 user, bytes32 affiliate)
+    function addAffiliateConnection(bytes32 user, bytes32 affiliate)
         public
         onlyWhitelisted
     {
         require(affiliateStatus[affiliate], "DID provided is not listed as affiliate");
-        affiliateLinks[user] = affiliate;
-        emit AddedAffiliateLink(user, affiliate);
+        affiliateConnections[user] = affiliate;
+        emit AddedAffiliateConnection(user, affiliate);
     }
 
     function removeAffiliate(bytes32 affiliateID)
@@ -92,13 +92,13 @@ contract SelfKeyMain is WhitelistedRole {
         emit RemovedVendor(vendorID);
     }
 
-    function removeAffiliateLink(bytes32 user)
+    function removeAffiliateConnection(bytes32 user)
         public
         onlyWhitelisted
     {
-        bytes32 affiliate = affiliateLinks[user];
-        affiliateLinks[user] = bytes32(0);
-        emit RemovedAffiliateLink(user, affiliate);
+        bytes32 affiliate = affiliateConnections[user];
+        affiliateConnections[user] = bytes32(0);
+        emit RemovedAffiliateConnection(user, affiliate);
     }
 
     function createDID(bytes32 affiliateID)
@@ -109,7 +109,7 @@ contract SelfKeyMain is WhitelistedRole {
         bytes32 newDID = ledger.createDID(bytes32(0));
 
         if (affiliateStatus[affiliateID] && ledger.getController(affiliateID) != address(0)) {
-            affiliateLinks[newDID] = affiliateID;
+            affiliateConnections[newDID] = affiliateID;
         }
 
         // transfer DID ownership to user

@@ -2,8 +2,8 @@
 
 Smart contracts implementing core functionality of the SelfKey network.
 
-* `develop` — [![CircleCI]({{circleci-badge-develop-link}})]({{circleci-project-develop-link}})
-* `master` — [![CircleCI]({{circleci-badge-master-link}})]({{circleci-project-master-link}})
+* `develop` — [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts/branch/develop/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-claim-registry)
+* `master` — [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-claim-registry/branch/master/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts)
 
 ## Overview
 
@@ -43,8 +43,8 @@ The following functions are implemented by the SelfKeyMain contract:
 * `registerVendor(bytes32 vendorID)`
 * `removeAffiliate(bytes32 affiliateID)`
 * `removeVendor(bytes32 vendorID)`
-* `addAffiliateLink(bytes32 user, bytes32 affiliate) public onlyWhitelisted`
-* `removeAffiliateLink(bytes32 user) public onlyWhitelisted`
+* `addAffiliateConnection(bytes32 user, bytes32 affiliate) public onlyWhitelisted`
+* `removeAffiliateConnection(bytes32 user) public onlyWhitelisted`
 
 **DIDLedger middleware:**
 
@@ -52,7 +52,7 @@ The following functions are implemented by the SelfKeyMain contract:
 * `resolveDID(bytes32 did) returns (address)`
 
 **Note:** Although transactions can be made directly on the DID Ledger, creating DIDs through the `SelfKeyMain`
-serves the purpose of potential linking to an affiliate, and this functionality might be improved to create
+serves the purpose of potential connecting to an affiliate, and this functionality might be improved to create
 more complex identity setups (e.g. ERC725) before creating the DID on the ledger.
 
 **This contract is planned to be upgradable via ZeppelinOS, yet the current version (1.0.0) still doesn't implement upgradability.**
@@ -69,7 +69,7 @@ affiliate splitting were done correctly_.
 * Sender must `approve` the payments contract to spend the required amount of tokens.
 * Sender, recipient and potential affiliates must have a valid DID registered on the DID Ledger.
 * Recipient DID is registered as a _Vendor_ on the SelfKeyMain. (i.e. `vendorStatus(did) -> true`)
-* Affiliates are registered as such on the SelfKeyMain. (i.e. `affiliateStatus(did) -> true`) and have a relationship to the sender DID (i.e. `affiliateLinks(senderDID) -> true`)
+* Affiliates are registered as such on the SelfKeyMain. (i.e. `affiliateStatus(did) -> true`) and have a relationship to the sender DID (i.e. `affiliateConnections(senderDID) -> true`)
 
 #### Payment method
 
@@ -122,10 +122,10 @@ let affiliate1DID = tx.events.CreatedSelfKeyDID.returnValues.id
 // previously whitelisted address registers affiliate
 await main.methods.registerAffiliate(affiliate1DID).send({ 'from': whitelisted1 })
 
-// user creates new DID with affiliate link
+// user creates new DID with affiliate connection
 tx = await main.methods.createDID(affiliate1DID).send({ 'from': user2 })
 let user2DID = tx.events.CreatedSelfKeyDID.returnValues.id
-console.log(await main.methods.affiliateLinks(user2DID).call() == affiliate1DID) // true
+console.log(await main.methods.affiliateConnections(user2DID).call() == affiliate1DID) // true
 ```
 
 **Payment**
@@ -150,7 +150,7 @@ Smart contracts are implemented using Solidity version `0.5.4`.
 
 ### Prerequisites
 
-* [NodeJS](htps://nodejs.org), version 9.5+ (I use [`nvm`](https://github.com/creationix/nvm) to manage Node versions — `brew install nvm`.)
+* [NodeJS](htps://nodejs.org), version 9.5+
 * [truffle](http://truffleframework.com/), which is a comprehensive framework for Ethereum development. `npm install -g truffle` — this should install the latest truffle version.
 
 ### Initialization

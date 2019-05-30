@@ -86,9 +86,9 @@ contract("PaymentSplitter", accounts => {
     await main.registerAffiliate(affiliate1DID, { from: whitelisted1 })
     await main.registerAffiliate(affiliate2DID, { from: whitelisted1 })
     await main.registerAffiliate(affiliate3DID, { from: whitelisted1 })
-    await main.addAffiliateLink(user2DID, affiliate1DID, { from: whitelisted1 })
-    await main.addAffiliateLink(affiliate1DID, affiliate2DID, { from: whitelisted1 })
-    await main.addAffiliateLink(user3DID, affiliate3DID, { from: whitelisted1 })
+    await main.addAffiliateConnection(user2DID, affiliate1DID, { from: whitelisted1 })
+    await main.addAffiliateConnection(affiliate1DID, affiliate2DID, { from: whitelisted1 })
+    await main.addAffiliateConnection(user3DID, affiliate3DID, { from: whitelisted1 })
 
     await token.approve(payments.address, 15000, { from: user1 })
   })
