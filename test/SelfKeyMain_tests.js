@@ -90,14 +90,14 @@ contract("SelfKeyMain", accounts => {
       assert.isTrue(await main.vendorStatus(vendor1DID))
     })
 
-    it("new DIDs can register with affiliate link", async () => {
-      // user2 registers as a DID with affiliate link
+    it("new DIDs can register with affiliate connection", async () => {
+      // user2 registers as a DID with affiliate connection
       let tx = await main.createDID(affiliate1DID, { from: user2 })
       let log = getLog(tx, "CreatedSelfKeyDID")
       user2DID = log.args.id
 
       assert.equal(await main.resolveDID(user2DID), user2)
-      assert.equal(await main.affiliateLinks(user2DID), affiliate1DID)
+      assert.equal(await main.affiliateConnections(user2DID), affiliate1DID)
     })
 
     it("unauthorized DIDs cannot be used as affiliates (affiliate DID is ignored)", async () => {
@@ -106,7 +106,7 @@ contract("SelfKeyMain", accounts => {
       user3DID = log.args.id
 
       assert.equal(await main.resolveDID(user3DID), user3)
-      assert.equal(await main.affiliateLinks(user3DID), zero)
+      assert.equal(await main.affiliateConnections(user3DID), zero)
 
       //
     })
@@ -121,7 +121,7 @@ contract("SelfKeyMain", accounts => {
       const someDID = log.args.id
 
       assert.equal(await main.resolveDID(someDID), user3)
-      assert.equal(await main.affiliateLinks(someDID), zero)  // affiliate link was ignored
+      assert.equal(await main.affiliateConnections(someDID), zero)  // affiliate connection was ignored
     })
 
     it("(only) whitelisted can remove vendors", async () => {
@@ -138,20 +138,20 @@ contract("SelfKeyMain", accounts => {
       assert.isFalse(await main.affiliateStatus(affiliate1DID))
     })
 
-    it("(only) whitelisted can arbitrarily link existing DIDs to affiliates (with valid DID)", async () => {
+    it("(only) whitelisted can arbitrarily connect existing DIDs to affiliates (with valid DID)", async () => {
       const anyHash = web3.utils.keccak256("Vitalik")
-      assert.equal(await main.affiliateLinks(user3DID), zero)
-      await assertThrows(main.addAffiliateLink(user3DID, affiliate2DID, { from: user1 }))
-      await assertThrows(main.addAffiliateLink(user3DID, anyHash, { from: whitelisted1 }))
-      await main.addAffiliateLink(user3DID, affiliate2DID, { from: whitelisted1 })
-      assert.equal(await main.affiliateLinks(user3DID), affiliate2DID)
+      assert.equal(await main.affiliateConnections(user3DID), zero)
+      await assertThrows(main.addAffiliateConnection(user3DID, affiliate2DID, { from: user1 }))
+      await assertThrows(main.addAffiliateConnection(user3DID, anyHash, { from: whitelisted1 }))
+      await main.addAffiliateConnection(user3DID, affiliate2DID, { from: whitelisted1 })
+      assert.equal(await main.affiliateConnections(user3DID), affiliate2DID)
     })
 
-    it("(only) whitelisted can remove affiliate links", async () => {
-      assert.equal(await main.affiliateLinks(user3DID), affiliate2DID)
-      await assertThrows(main.removeAffiliateLink(user3DID, { from: user1 }))
-      await main.removeAffiliateLink(user3DID, { from: whitelisted1 })
-      assert.equal(await main.affiliateLinks(user3DID), zero)
+    it("(only) whitelisted can remove affiliate connections", async () => {
+      assert.equal(await main.affiliateConnections(user3DID), affiliate2DID)
+      await assertThrows(main.removeAffiliateConnection(user3DID, { from: user1 }))
+      await main.removeAffiliateConnection(user3DID, { from: whitelisted1 })
+      assert.equal(await main.affiliateConnections(user3DID), zero)
     })
 
     it("DID owners can set metadata on the ledger", async () => {

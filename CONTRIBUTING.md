@@ -2,7 +2,7 @@
 
 ## Development Process
 
-All development is to follow the [standard git-flow](http://nvie.com/posts/a-successful-git-branching-model/) process, modified to allow for code-reviews.
+All development should follow the [standard git-flow](http://nvie.com/posts/a-successful-git-branching-model/) process, modified to allow for code-reviews.
 
 For reference on git-flow commands, check out this [cheat sheet](http://danielkummer.github.io/git-flow-cheatsheet/).
 
