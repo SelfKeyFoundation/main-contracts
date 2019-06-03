@@ -2,8 +2,8 @@
 
 Smart contracts implementing core functionality of the SelfKey network.
 
-* `develop` — [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts/branch/develop/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-claim-registry)
-* `master` — [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-claim-registry/branch/master/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts)
+* `develop` — [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts/branch/develop/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts)
+* `master` — [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts/branch/master/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-main-contracts)
 
 ## Overview
 
